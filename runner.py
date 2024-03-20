@@ -22,6 +22,7 @@ transform = transforms.Compose([
 
 dataset = datasets.ImageFolder(root="images", transform=transform)
 
+
 train_size = int(0.8 * len(dataset))
 validation_size = int(0.1 * len(dataset))
 test_size = len(dataset) - train_size - validation_size
@@ -33,14 +34,14 @@ train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=64, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=64, shuffle=True)
 
-model = ConvolutionalModel(input_shape=1, hidden_units=10, output_shape=10)
+model = ConvolutionalModel(input_shape=3, hidden_units=128, output_shape=120)
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(params=model.parameters(),
                             lr=0.1)
 
 def run_training():
     train_time_start = timer()
-    epochs = 3
+    epochs = 10
     for epoch in tqdm(range(epochs)):
         print(f"Epoch: {epoch}\n-------------")
 
