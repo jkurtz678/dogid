@@ -37,14 +37,13 @@ def load_dog_data():
 
     return train_loader, val_loader, test_loader
 
-model = ConvolutionalModel(input_shape=3, hidden_units=128, output_shape=120)
+model = ConvolutionalModel(input_shape=3, hidden_units=256, output_shape=120)
 loss_fn = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(params=model.parameters(),
-                            lr=0.1)
+optimizer = torch.optim.Adam(params=model.parameters(), lr=0.001)
 
 def run_training():
     train_time_start = timer()
-    epochs = 10
+    epochs = 1
     for epoch in tqdm(range(epochs)):
         print(f"Epoch: {epoch}\n-------------")
 

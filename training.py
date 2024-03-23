@@ -14,6 +14,10 @@ def train_step(model: torch.nn.Module,
 
         # 1. forward pass
         y_pred = model(X)
+        #print(f"y_pred shape {y_pred.shape}")
+
+        # first few samples of y_pred
+        #print(f"y_pred: {y_pred[:5]}")
 
         # 2. Calculate loss
         loss = loss_fn(y_pred, y)
@@ -29,6 +33,8 @@ def train_step(model: torch.nn.Module,
 
         # 5. Optimizer step
         optimizer.step()
+
+        print(f"Batch {batch}/{len(data_loader)}: Loss: {loss}, Accuracy: {train_acc/(batch+1):.2f}")
 
     
     train_loss /= len(data_loader)
