@@ -1,4 +1,5 @@
 import torch
+from timeit import default_timer as timer
 
 def train_step(model: torch.nn.Module,
                data_loader: torch.utils.data.DataLoader,
@@ -10,6 +11,7 @@ def train_step(model: torch.nn.Module,
     model.to(device)
     
     for batch, (X, y) in enumerate(data_loader):
+        batch_time_start = timer() 
         X, y = X.to(device), y.to(device)
 
         # 1. forward pass
@@ -34,7 +36,9 @@ def train_step(model: torch.nn.Module,
         # 5. Optimizer step
         optimizer.step()
 
-        print(f"Batch {batch}/{len(data_loader)}: Loss: {loss}, Accuracy: {train_acc/(batch+1):.2f}")
+        batch_time_end = timer()
+        total_time = batch_time_end - batch_time_start 
+        print(f"Batch {batch}/{len(data_loader)}: Loss: {loss}, Accuracy: {train_acc/(batch+1):.2f}, time: {total_time:.3f} seconds")
 
     
     train_loss /= len(data_loader)

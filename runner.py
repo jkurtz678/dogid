@@ -37,7 +37,7 @@ def load_dog_data():
 
     return train_loader, val_loader, test_loader
 
-model = ConvolutionalModel(input_shape=3, hidden_units=256, output_shape=120)
+model = ConvolutionalModel(input_shape=3, hidden_units=128, output_shape=120)
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(params=model.parameters(), lr=0.001)
 

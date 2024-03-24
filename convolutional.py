@@ -10,7 +10,8 @@ class ConvolutionalModel(nn.Module):
         conv_kernel_size = 3
         pooling_kernel = 2
         pooling_stride = 2
-        conv_output = hidden_units * 56 * 56
+        #conv_output = hidden_units * 56 * 56
+        conv_output = hidden_units * 14 * 14
         #output_size = ((input_shape - kernel_size + 2*padding)/stride) + 1
         #print("output_size: ", output_size)
         self.block_1 = nn.Sequential(
@@ -61,6 +62,6 @@ class ConvolutionalModel(nn.Module):
         x = self.block_3(x)
         x = self.block_4(x)
         
-        print(f"x.shape: {x.shape}")
+        #print(f"x.shape: {x.shape}")
         x = self.classifier(x)
         return x
