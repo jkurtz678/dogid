@@ -31,9 +31,9 @@ def load_dog_data():
     train_dataset, val_dataset, test_dataset = random_split(dataset, [train_size, validation_size, test_size])
 
     # dataloaders
-    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=64, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=64, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=True)
 
     return train_loader, val_loader, test_loader
 
@@ -43,7 +43,7 @@ optimizer = torch.optim.Adam(params=model.parameters(), lr=0.001)
 
 def run_training():
     train_time_start = timer()
-    epochs = 1
+    epochs = 5
     for epoch in tqdm(range(epochs)):
         print(f"Epoch: {epoch}\n-------------")
 
