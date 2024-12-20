@@ -6,7 +6,8 @@ def train_step(model: torch.nn.Module,
                loss_fn: torch.nn.Module,
                optimizer: torch.optim.Optimizer,
                accuracy_fn,
-               device: torch.device ):
+               device: torch.device,
+               warmup_scheduler=None):
     train_loss, train_acc = 0,0
     model.to(device)
     
@@ -33,8 +34,15 @@ def train_step(model: torch.nn.Module,
         # 4. Backpropagation
         loss.backward()
 
-        # 5. Optimizer step
+        # 5. Gradient clipping
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+        # 6. Optimizer step
         optimizer.step()
+
+        # 7. Step warmup scheduler if it exists and we're in warmup phase
+        if warmup_scheduler is not None:
+            warmup_scheduler.step()
 
         batch_time_end = timer()
         total_time = batch_time_end - batch_time_start 
@@ -57,7 +65,7 @@ def test_step(data_loader: torch.utils.data.DataLoader,
 
     with torch.inference_mode():
         for X, y in data_loader:
-            X, y = X.to(device), y.to(device)
+            #X, y = X.to(device), y.to(device)
 
             X, y = X.to(device), y.to(device)
 

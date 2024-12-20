@@ -65,3 +65,45 @@ class ConvolutionalModel(nn.Module):
         #print(f"x.shape: {x.shape}")
         x = self.classifier(x)
         return x
+
+class ImprovedConvolutionalModel(nn.Module):
+    def __init__(self, input_shape: int, hidden_units: int, output_shape: int):
+        super().__init__()
+        
+        self.block_1 = nn.Sequential(
+            nn.Conv2d(input_shape, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+        
+        self.block_2 = nn.Sequential(
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+        
+        self.block_3 = nn.Sequential(
+            nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        self.classifier = nn.Sequential(
+            nn.AdaptiveAvgPool2d((1, 1)),  # This will handle any input size
+            nn.Flatten(),
+            nn.Dropout(0.5),
+            nn.Linear(256, 512),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(512, output_shape)
+        )
+
+    def forward(self, x):
+        x = self.block_1(x)
+        x = self.block_2(x)
+        x = self.block_3(x)
+        x = self.classifier(x)
+        return x
