@@ -12,10 +12,27 @@ from helper_functions import accuracy_fn
 from training import train_step, test_step, eval_model
 from pathlib import Path
 
+class LabelSmoothingLoss(nn.Module):
+    def __init__(self, classes=120, smoothing=0.1):
+        super(LabelSmoothingLoss, self).__init__()
+        self.confidence = 1.0 - smoothing  # confidence for the true class
+        self.smoothing = smoothing
+        self.classes = classes
+
+    def forward(self, pred, target):
+        pred = pred.log_softmax(dim=-1)
+        with torch.no_grad():
+            true_dist = torch.zeros_like(pred)
+            true_dist.fill_(self.smoothing / (self.classes - 1))
+            true_dist.scatter_(1, target.unsqueeze(1), self.confidence)
+        return torch.mean(torch.sum(-true_dist * pred, dim=-1))
 
 def load_dog_data():
     from torchvision import datasets
     from torch.utils.data import random_split, DataLoader
+
+    data_set_means = [0.4762, 0.4519, 0.3910]
+    data_set_stds = [0.2580, 0.2524, 0.2570]
 
      # Training transform with augmentation
     train_transform = transforms.Compose([
@@ -29,20 +46,33 @@ def load_dog_data():
             hue=0.1          # Slight hue adjustment
         ),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], 
-                           std=[0.229, 0.224, 0.225])
+        transforms.Normalize(mean=data_set_means, 
+                           std=data_set_stds)
     ])
 
     # Validation/Test transform without augmentation
     val_transform = transforms.Compose([
         transforms.Resize((224, 224)),  # Just resize, no augmentation
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], 
-                           std=[0.229, 0.224, 0.225])
+        transforms.Normalize(mean=data_set_means, 
+                           std=data_set_stds)
     ])
 
     # Load full dataset with training transforms
     train_dataset = datasets.ImageFolder(root="images", transform=train_transform)
+
+    # Let's also verify our normalization values are appropriate
+    # Get raw stats before normalization
+    raw_transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor()
+    ])
+    raw_dataset = datasets.ImageFolder(root="images", transform=raw_transform)
+    raw_img, _ = raw_dataset[0]
+    
+    print(f"\nRaw image stats (before normalization):")
+    for i, channel in enumerate(['Red', 'Green', 'Blue']):
+        print(f"{channel} channel - Mean: {raw_img[i].mean():.4f}, Std: {raw_img[i].std():.4f}")
 
     # Print dataset info
     #print(f"Total number of classes: {len(train_dataset.classes)}")
@@ -94,7 +124,8 @@ def run():
     
     model.apply(initialize_weights)
 
-    loss_fn = nn.CrossEntropyLoss()
+    #loss_fn = nn.CrossEntropyLoss()
+    loss_fn = LabelSmoothingLoss(classes=120, smoothing=0.1)
     #optimizer = torch.optim.Adam(params=model.parameters(), lr=0.0001)
     optimizer = torch.optim.SGD(
                           model.parameters(), 

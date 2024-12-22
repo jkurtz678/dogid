@@ -84,11 +84,11 @@ class ResNet(nn.Module):
             nn.Flatten(),
             nn.BatchNorm1d(512 * block.expansion),  # Add BN before dropout
             nn.Dropout(0.5),
-            nn.Linear(512 * block.expansion, 1024),
-            nn.BatchNorm1d(1024),  # Add BN after linear
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(1024, num_classes),
+            nn.Linear(512 * block.expansion, num_classes),
+            #nn.BatchNorm1d(1024),  # Add BN after linear
+            #nn.ReLU(),
+            #nn.Dropout(0.3),
+            #nn.Linear(1024, num_classes),
         )
         
         # Initialize weights
@@ -136,8 +136,8 @@ def create_resnet18(num_classes=120):
     nn.init.normal_(model.classifier[3].weight, std=0.001)  # First Linear layer
     nn.init.constant_(model.classifier[3].bias, 0)
     
-    nn.init.normal_(model.classifier[7].weight, std=0.001)  # Second Linear layer
-    nn.init.constant_(model.classifier[7].bias, 0)
+    #nn.init.normal_(model.classifier[7].weight, std=0.001)  # Second Linear layer
+    #nn.init.constant_(model.classifier[7].bias, 0)
     
     return model
 
