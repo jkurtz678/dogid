@@ -5,7 +5,8 @@ import torch
 from torch import nn
 from torchvision import transforms
 from util import get_device
-from convolutional import ImprovedConvolutionalModel
+#from convolutional import ImprovedConvolutionalModel
+from resnet import create_resnet18 
 from helper_functions import accuracy_fn
 from training import train_step, test_step, eval_model
 from pathlib import Path
@@ -69,7 +70,7 @@ def load_dog_data():
 def run():
 
     device = get_device()
-    model = ImprovedConvolutionalModel(input_shape=3, hidden_units=128, output_shape=120)
+    model = create_resnet18(num_classes=120)
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(params=model.parameters(), lr=0.0001)
 
