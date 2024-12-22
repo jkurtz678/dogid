@@ -98,7 +98,7 @@ def run():
     #optimizer = torch.optim.Adam(params=model.parameters(), lr=0.0001)
     optimizer = torch.optim.SGD(
                           model.parameters(), 
-                          lr=0.01,
+                          lr=0.001,
                           momentum=0.9, 
                           weight_decay=1e-3,
                           nesterov=True  # Add Nesterov momentum
