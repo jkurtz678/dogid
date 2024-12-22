@@ -13,6 +13,8 @@ class BasicBlock(nn.Module):
             kernel_size=3, stride=stride, padding=1, bias=False
         )
         self.bn1 = nn.BatchNorm2d(out_channels)
+        self.dropout1 = nn.Dropout2d(0.1)
+
         
         # Second convolution layer
         self.conv2 = nn.Conv2d(
@@ -20,6 +22,8 @@ class BasicBlock(nn.Module):
             kernel_size=3, stride=1, padding=1, bias=False
         )
         self.bn2 = nn.BatchNorm2d(out_channels)
+        self.dropout2 = nn.Dropout2d(0.1)
+
         
         # Shortcut connection (identity mapping or 1x1 conv)
         self.shortcut = nn.Sequential()
@@ -42,10 +46,12 @@ class BasicBlock(nn.Module):
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
+        out = self.dropout1(out)
         
         # Second conv block
         out = self.conv2(out)
         out = self.bn2(out)
+        out = self.dropout2(out)
         
         # Add skip connection
         out += self.shortcut(identity)
