@@ -45,14 +45,14 @@ def load_dog_data():
     train_dataset = datasets.ImageFolder(root="images", transform=train_transform)
 
     # Print dataset info
-    print(f"Total number of classes: {len(train_dataset.classes)}")
-    print(f"Class mapping: {train_dataset.class_to_idx}")
-    print(f"Class distribution:")
-    class_counts = {}
-    for _, label in train_dataset.samples:
-        class_counts[label] = class_counts.get(label, 0) + 1
-    for class_name, idx in train_dataset.class_to_idx.items():
-        print(f"  {class_name}: {class_counts.get(idx, 0)} images")
+    #print(f"Total number of classes: {len(train_dataset.classes)}")
+    #print(f"Class mapping: {train_dataset.class_to_idx}")
+    #print(f"Class distribution:")
+    #class_counts = {}
+    #for _, label in train_dataset.samples:
+    #    class_counts[label] = class_counts.get(label, 0) + 1
+    #for class_name, idx in train_dataset.class_to_idx.items():
+    #    print(f"  {class_name}: {class_counts.get(idx, 0)} images")
     
     # Calculate splits
     train_size = int(0.8 * len(train_dataset))
@@ -100,7 +100,7 @@ def run():
                           model.parameters(), 
                           lr=0.01,
                           momentum=0.9, 
-                          weight_decay=1e-4,
+                          weight_decay=1e-3,
                           nesterov=True  # Add Nesterov momentum
                         )  
 
