@@ -58,7 +58,7 @@ def train_step(model: torch.nn.Module,
                     print(f"{name}: {param.grad.norm().item():.4f}")
 
         # 5. Gradient clipping
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=10.0)
 
         # 6. Optimizer step
         optimizer.step()
