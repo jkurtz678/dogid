@@ -17,6 +17,14 @@ def train_step(model: torch.nn.Module,
 
         # 1. forward pass
         y_pred = model(X)
+
+        if batch == 0:  # First batch of each epoch
+            print(f"Model output stats:")
+            print(f"  Shape: {y_pred.shape}")
+            print(f"  Min: {y_pred.min().item():.4f}")
+            print(f"  Max: {y_pred.max().item():.4f}")
+            print(f"  Mean: {y_pred.mean().item():.4f}")
+            print(f"  Std: {y_pred.std().item():.4f}")
         #print(f"y_pred shape {y_pred.shape}")
 
         # first few samples of y_pred
@@ -34,6 +42,21 @@ def train_step(model: torch.nn.Module,
         # 4. Backpropagation
         loss.backward()
 
+        if batch % 100 == 0:
+            total_norm = 0.0
+            for param in model.parameters():
+                if param.grad is not None:
+                    param_norm = param.grad.data.norm(2)
+                    total_norm += param_norm.item() ** 2
+            total_norm = total_norm ** 0.5
+            print(f"Gradient norm: {total_norm:.4f}")
+
+            # Print layer-wise gradients
+            print("\nLayer-wise gradient norms:")
+            for name, param in model.named_parameters():
+                if param.grad is not None:
+                    print(f"{name}: {param.grad.norm().item():.4f}")
+
         # 5. Gradient clipping
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
@@ -43,6 +66,9 @@ def train_step(model: torch.nn.Module,
         # 7. Step warmup scheduler if it exists and we're in warmup phase
         if warmup_scheduler is not None:
             warmup_scheduler.step()
+            if batch % 10 == 0:  # Print LR less frequently to reduce output
+                print(f"Current LR: {optimizer.param_groups[0]['lr']:.6f}")
+
 
         batch_time_end = timer()
         total_time = batch_time_end - batch_time_start 

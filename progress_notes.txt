@@ -1,6 +1,6 @@
 Progress Notes for Dog Breed Classification Project
 
-Current Status (as of last run):
+[December 21, 2024] - Initial Attempt Status:
 - Training with 120 dog breed classes
 - Loss around 4.74 (barely improved from random guessing of ~4.78)
 - Accuracy ~0.98% training, 1.97% validation (just above random 0.83%)
@@ -20,18 +20,41 @@ Implemented Improvements:
 
 3. Added validation monitoring
 
-Next Steps to Implement:
-1. Switch to ResNet-style architecture with:
-   - Residual connections
-   - Better gradient flow
-   - Proper weight initialization
-   - Deeper network for fine-grained features
+[December 21, 2024] - ResNet Implementation Status:
+- Switched to ResNet-18 architecture
+- Still seeing similar issues with learning:
+  - Loss stuck around 4.77-4.81 (random guess level)
+  - Accuracy decreasing from 1.13% to 0.94% during training
+  - Learning rate warmup from 0.0027 to 0.0031 not helping
 
-2. Add label smoothing (loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1))
+Implemented Changes:
+1. Switched to ResNet architecture with:
+   - Proper residual connections
+   - BatchNorm layers
+   - Dropout in classifier (0.5 and 0.3)
+   - Kaiming initialization for conv layers
+
+2. Modified training setup:
+   - Changed to SGD with momentum (0.9)
+   - Added gradient clipping
+   - Implemented warmup scheduling
+   - Added weight decay (1e-4)
+
+Next Steps to Try:
+1. Learning rate adjustments:
+   - Reduce initial learning rate to 0.001
+   - More gradual warmup (factor 1/1000)
+   - Longer warmup period
+
+2. Add more monitoring:
+   - Gradient norm tracking
+   - Model output statistics
+   - Layer-by-layer gradient flow
 
 3. Consider:
-   - Reducing batch size to 16
-   - Increasing initial learning rate to 0.0003
-   - Adding mixup augmentation
+   - Reducing model complexity initially
+   - Adding label smoothing
+   - Checking for data loading/preprocessing issues
+   - Verifying model output dimensions
 
-Model is currently struggling to learn effectively, indicating need for architectural improvements rather than just training optimizations.
+Model is still struggling with initial learning phase, suggesting need to focus on learning rate and initialization strategies before adding more complexity.

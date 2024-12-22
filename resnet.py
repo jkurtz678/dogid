@@ -82,11 +82,13 @@ class ResNet(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.classifier = nn.Sequential(
             nn.Flatten(),
+            nn.BatchNorm1d(512 * block.expansion),  # Add BN before dropout
             nn.Dropout(0.5),
             nn.Linear(512 * block.expansion, 1024),
+            nn.BatchNorm1d(1024),  # Add BN after linear
             nn.ReLU(),
             nn.Dropout(0.3),
-            nn.Linear(1024, num_classes)
+            nn.Linear(1024, num_classes),
         )
         
         # Initialize weights
@@ -128,8 +130,16 @@ class ResNet(nn.Module):
         return x
 
 def create_resnet18(num_classes=120):
-    """Creates a ResNet-18 model"""
-    return ResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
+    model = ResNet(BasicBlock, [1, 1, 1, 1], num_classes=num_classes)
+    
+    # Initialize the Linear layers (indices 3 and 7 in the classifier sequence)
+    nn.init.normal_(model.classifier[3].weight, std=0.001)  # First Linear layer
+    nn.init.constant_(model.classifier[3].bias, 0)
+    
+    nn.init.normal_(model.classifier[7].weight, std=0.001)  # Second Linear layer
+    nn.init.constant_(model.classifier[7].bias, 0)
+    
+    return model
 
 def create_resnet34(num_classes=120):
     """Creates a ResNet-34 model"""

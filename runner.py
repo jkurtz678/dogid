@@ -4,6 +4,7 @@ from tqdm.auto import tqdm
 import torch
 from torch import nn
 from torchvision import transforms
+import math
 from util import get_device
 #from convolutional import ImprovedConvolutionalModel
 from resnet import create_resnet18 
@@ -95,24 +96,30 @@ def run():
 
     loss_fn = nn.CrossEntropyLoss()
     #optimizer = torch.optim.Adam(params=model.parameters(), lr=0.0001)
-    optimizer = torch.optim.SGD(model.parameters(), 
+    optimizer = torch.optim.SGD(
+                          model.parameters(), 
                           lr=0.1,  # Much larger initial LR
                           momentum=0.9, 
-                          weight_decay=1e-4)  # Add weight decay
+                          weight_decay=1e-4,
+                          nesterov=True  # Add Nesterov momentum
+                        )  # Add weight decay
 
     def run_training():
         train_time_start = timer()
         epochs = 30
 
-         # Warmup parameters
-        warmup_factor = 1.0 / 10  # Start with lr/1000 and gradually increase
-        warmup_iters = min(500, len(train_loader) - 1)
-        warmup_scheduler = torch.optim.lr_scheduler.LinearLR(
-            optimizer, 
-            start_factor=warmup_factor, 
-            end_factor=1.0, 
-            total_iters=warmup_iters
-        )
+        total_steps = epochs * len(train_loader)
+        num_warmup_steps = len(train_loader) // 8  # Only 1/8th of an epoch
+    
+        # More aggressive warmup scheduler
+        def get_warmup_lr_lambda(current_step):
+            if current_step < num_warmup_steps:
+                # Linear warmup
+                return float(current_step) / float(max(1.0, num_warmup_steps))
+            # Cosine decay after warmup
+            return 0.5 * (1.0 + math.cos(math.pi * (current_step - num_warmup_steps) / (total_steps - num_warmup_steps)))
+        
+        warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, get_warmup_lr_lambda)
 
         # Main scheduler for after warmup
         lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
@@ -124,7 +131,6 @@ def run():
         for epoch in tqdm(range(epochs)):
             print(f"Epoch: {epoch}\n-------------")
 
-            # Add at the start of your training loop
             for batch in train_loader:
                 images, labels = batch
                 print(f"Input stats - min: {images.min():.2f}, max: {images.max():.2f}, mean: {images.mean():.2f}")
