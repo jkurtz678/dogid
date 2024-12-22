@@ -65,17 +65,35 @@ Implemented Changes:
    - Initial attempt to remove extra linear layer caused issues
    - Need to properly adjust final layer dimensions to match num_classes
 
+[December 22, 2024] - Model Regularization and Training Stability:
+1. Implemented Label Smoothing:
+   - Added LabelSmoothingLoss with smoothing=0.1
+   - Helped stabilize loss fluctuations
+   - Initial learning showed improvement with loss around 4.64
+
+2. Added Dropout to ResNet Blocks:
+   - Initially added 0.1 dropout to all ResNet blocks
+   - Saw improved balance between training and validation accuracy
+   - Training: 17.28%, Validation: 16.09% (reduced overfitting gap)
+
+3. Further Training Analysis (Epoch 17):
+   - Observed return of overfitting (Training: 28.73%, Validation: 20.12%)
+   - Gradient norms increased to 11.6637
+   - Model outputs showing wider range (-9.5869 to 9.3885)
+   - Learning rate decreased to 0.00043 via cosine annealing
+
+4. Latest Adjustments:
+   - Increased dropout in second layer to 0.2
+   - Raised gradient clipping threshold to 15
+   - Extended training duration beyond 20 epochs
+
 Next Steps:
-1. Fix classifier structure:
-   - Adjust final linear layer to output directly to num_classes (120)
-   - Ensure proper initialization of simplified classifier
+1. Monitor effects of latest changes:
+   - Watch for reduction in training/validation accuracy gap
+   - Monitor gradient norm stability
+   - Track model output range
 
-2. Continue monitoring:
-   - Gradient flow through simplified architecture
-   - Loss stability with new learning rate
-   - Training vs validation metrics
-
-3. If needed:
-   - Consider additional data augmentation
-   - Adjust dropout rates
-   - Fine-tune learning rate further
+2. Consider further adjustments if needed:
+   - Progressive dropout rates in deeper layers
+   - Learning rate schedule modifications
+   - Additional regularization techniques

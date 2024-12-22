@@ -136,7 +136,7 @@ class ResNet(nn.Module):
         return x
 
 def create_resnet18(num_classes=120):
-    model = ResNet(BasicBlock, [1, 1, 1, 1], num_classes=num_classes)
+    model = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
     
     # Initialize the Linear layers (indices 3 and 7 in the classifier sequence)
     nn.init.normal_(model.classifier[3].weight, std=0.001)  # First Linear layer

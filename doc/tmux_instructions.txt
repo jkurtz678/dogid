@@ -1,0 +1,41 @@
+TMUX Quick Reference Guide
+========================
+
+Installation:
+-------------
+Ubuntu/Debian: sudo apt-get install tmux
+MacOS: brew install tmux
+
+Basic Usage:
+-------------
+1. Start a new session:
+   tmux new -s training
+
+2. Detach from session (keeps running in background):
+   Ctrl+b then d
+
+3. List all sessions:
+   tmux ls
+
+4. Reattach to a session:
+   tmux attach -t training
+
+Common Commands (all start with Ctrl+b):
+---------------------------------------
+d    - Detach from session
+c    - Create new window
+n    - Next window
+p    - Previous window
+%    - Split pane vertically
+"    - Split pane horizontally
+→←↑↓ - Navigate between panes
+x    - Kill current pane
+&    - Kill current window
+[    - Enter scroll mode (use arrow keys to scroll, q to quit)
+
+Tips:
+-----
+- Always name your sessions (use -s flag) to easily identify them later
+- Use logging in your Python scripts to track progress even when detached
+- Consider using multiple windows/panes for monitoring different aspects
+  (e.g., one for training, one for system monitoring)
