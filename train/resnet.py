@@ -7,14 +7,27 @@ class BasicBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1):
         super(BasicBlock, self).__init__()
         
+        # Set dropout rates based on the layer depth (determined by channel size)
+        if in_channels <= 64:  # First layer
+            dropout1_rate = 0.1
+            dropout2_rate = 0.2
+        elif in_channels <= 128:  # Second layer
+            dropout1_rate = 0.15
+            dropout2_rate = 0.25
+        elif in_channels <= 256:  # Third layer
+            dropout1_rate = 0.2
+            dropout2_rate = 0.3
+        else:  # Fourth layer
+            dropout1_rate = 0.25
+            dropout2_rate = 0.35
+        
         # First convolution layer
         self.conv1 = nn.Conv2d(
             in_channels, out_channels, 
             kernel_size=3, stride=stride, padding=1, bias=False
         )
         self.bn1 = nn.BatchNorm2d(out_channels)
-        self.dropout1 = nn.Dropout2d(0.1)
-
+        self.dropout1 = nn.Dropout2d(dropout1_rate)
         
         # Second convolution layer
         self.conv2 = nn.Conv2d(
@@ -22,8 +35,7 @@ class BasicBlock(nn.Module):
             kernel_size=3, stride=1, padding=1, bias=False
         )
         self.bn2 = nn.BatchNorm2d(out_channels)
-        self.dropout2 = nn.Dropout2d(0.2)
-
+        self.dropout2 = nn.Dropout2d(dropout2_rate)
         
         # Shortcut connection (identity mapping or 1x1 conv)
         self.shortcut = nn.Sequential()

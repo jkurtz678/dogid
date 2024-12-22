@@ -36,14 +36,18 @@ def load_dog_data():
 
      # Training transform with augmentation
     train_transform = transforms.Compose([
-        transforms.Resize((256, 256)),  # Resize larger then crop
-        transforms.RandomCrop(224),     # Random crop for variation
-        transforms.RandomHorizontalFlip(p=0.5),  # 50% chance to flip left-right
+        transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),  # More varied crops
+        transforms.RandomHorizontalFlip(p=0.5),
         transforms.ColorJitter(
-            brightness=0.2,   # Adjust brightness
-            contrast=0.2,     # Adjust contrast
-            saturation=0.2,   # Adjust saturation
-            hue=0.1          # Slight hue adjustment
+            brightness=0.3,    # Increased from 0.2
+            contrast=0.3,      # Increased from 0.2
+            saturation=0.3,    # Increased from 0.2
+            hue=0.15          # Increased from 0.1
+        ),
+        transforms.RandomAffine(
+            degrees=15,        # Random rotation up to 15 degrees
+            translate=(0.1, 0.1),  # Random translation up to 10%
+            scale=(0.9, 1.1)   # Random scaling ±10%
         ),
         transforms.ToTensor(),
         transforms.Normalize(mean=data_set_means, 
@@ -131,7 +135,7 @@ def run():
                           model.parameters(), 
                           lr=0.008,
                           momentum=0.9, 
-                          weight_decay=2e-3,
+                          weight_decay=5e-3,
                           nesterov=True  # Add Nesterov momentum
                         )  
 
