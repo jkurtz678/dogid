@@ -98,15 +98,15 @@ def run():
     #optimizer = torch.optim.Adam(params=model.parameters(), lr=0.0001)
     optimizer = torch.optim.SGD(
                           model.parameters(), 
-                          lr=0.1,  # Much larger initial LR
+                          lr=0.01,
                           momentum=0.9, 
                           weight_decay=1e-4,
                           nesterov=True  # Add Nesterov momentum
-                        )  # Add weight decay
+                        )  
 
     def run_training():
         train_time_start = timer()
-        epochs = 30
+        epochs = 20
 
         total_steps = epochs * len(train_loader)
         num_warmup_steps = len(train_loader) // 8  # Only 1/8th of an epoch
