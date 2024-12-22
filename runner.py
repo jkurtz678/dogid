@@ -137,7 +137,7 @@ def run():
 
     def run_training():
         train_time_start = timer()
-        epochs = 20
+        epochs = 50
 
         total_steps = epochs * len(train_loader)
         num_warmup_steps = len(train_loader) // 8  # Only 1/8th of an epoch

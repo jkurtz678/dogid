@@ -22,7 +22,7 @@ class BasicBlock(nn.Module):
             kernel_size=3, stride=1, padding=1, bias=False
         )
         self.bn2 = nn.BatchNorm2d(out_channels)
-        self.dropout2 = nn.Dropout2d(0.1)
+        self.dropout2 = nn.Dropout2d(0.2)
 
         
         # Shortcut connection (identity mapping or 1x1 conv)
