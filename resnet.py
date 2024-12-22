@@ -57,6 +57,14 @@ class ResNet(nn.Module):
     def __init__(self, block, layers, num_classes=120):
         super(ResNet, self).__init__()
         self.in_channels = 64
+
+         # Set specific batch norm momentum
+        self.bn_momentum = 0.1  # Try 0.1 or 0.01
+        def bn_momentum_adjust(m):
+            if isinstance(m, nn.BatchNorm2d):
+                m.momentum = self.bn_momentum
+        
+        self.apply(bn_momentum_adjust)
         
         # Initial convolution layer
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)

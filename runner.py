@@ -40,8 +40,18 @@ def load_dog_data():
                            std=[0.229, 0.224, 0.225])
     ])
 
-   # Load full dataset with training transforms
+    # Load full dataset with training transforms
     train_dataset = datasets.ImageFolder(root="images", transform=train_transform)
+
+    # Print dataset info
+    print(f"Total number of classes: {len(train_dataset.classes)}")
+    print(f"Class mapping: {train_dataset.class_to_idx}")
+    print(f"Class distribution:")
+    class_counts = {}
+    for _, label in train_dataset.samples:
+        class_counts[label] = class_counts.get(label, 0) + 1
+    for class_name, idx in train_dataset.class_to_idx.items():
+        print(f"  {class_name}: {class_counts.get(idx, 0)} images")
     
     # Calculate splits
     train_size = int(0.8 * len(train_dataset))
@@ -71,16 +81,32 @@ def run():
 
     device = get_device()
     model = create_resnet18(num_classes=120)
+    def initialize_weights(m):
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.normal_(m.weight, std=0.01)
+                nn.init.constant_(m.bias, 0)
+    
+    model.apply(initialize_weights)
+
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(params=model.parameters(), lr=0.0001)
+    #optimizer = torch.optim.Adam(params=model.parameters(), lr=0.0001)
+    optimizer = torch.optim.SGD(model.parameters(), 
+                          lr=0.1,  # Much larger initial LR
+                          momentum=0.9, 
+                          weight_decay=1e-4)  # Add weight decay
 
     def run_training():
         train_time_start = timer()
         epochs = 30
 
          # Warmup parameters
-        warmup_factor = 1.0 / 1000  # Start with lr/1000 and gradually increase
-        warmup_iters = min(1000, len(train_loader) - 1)
+        warmup_factor = 1.0 / 10  # Start with lr/1000 and gradually increase
+        warmup_iters = min(500, len(train_loader) - 1)
         warmup_scheduler = torch.optim.lr_scheduler.LinearLR(
             optimizer, 
             start_factor=warmup_factor, 
@@ -97,6 +123,13 @@ def run():
 
         for epoch in tqdm(range(epochs)):
             print(f"Epoch: {epoch}\n-------------")
+
+            # Add at the start of your training loop
+            for batch in train_loader:
+                images, labels = batch
+                print(f"Input stats - min: {images.min():.2f}, max: {images.max():.2f}, mean: {images.mean():.2f}")
+                print(f"Label range: {labels.min()}-{labels.max()}, unique labels: {len(torch.unique(labels))}")
+                break
 
             train_loss, train_acc = train_step(
                 data_loader=train_loader,
