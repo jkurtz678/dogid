@@ -1,6 +1,6 @@
 from torchvision import datasets, transforms
 from torch.utils.data import random_split, DataLoader
-from train.config import *  # Using absolute import path
+from config import *  # Using absolute import path
 
 def load_dog_data():
     data_set_means = [0.4762, 0.4519, 0.3910]

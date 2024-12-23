@@ -12,8 +12,8 @@ WEIGHT_DECAY = 5e-3
 LABEL_SMOOTHING = 0.1
 
 # Paths
-MODEL_PATH = Path("models")
-MODEL_NAME = "doggie_convolutional_model_improved.pth"
+MODEL_PATH = Path("saved_models")
+MODEL_NAME = "doggie_resnet.pth"
 MODEL_SAVE_PATH = MODEL_PATH / MODEL_NAME
 
 # Dataset

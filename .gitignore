@@ -4,3 +4,4 @@ models
 __pycache__
 .aider*
 venv
+logs
