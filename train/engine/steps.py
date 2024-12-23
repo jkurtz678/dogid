@@ -1,8 +1,6 @@
 import torch
 from timeit import default_timer as timer
 
-from train.utils.logging.tensorboard import TensorboardLogger
-
 def train_step(model: torch.nn.Module,
                data_loader: torch.utils.data.DataLoader,
                loss_fn: torch.nn.Module,
