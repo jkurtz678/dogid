@@ -25,10 +25,6 @@ def train_step(model: torch.nn.Module,
             print(f"  Max: {y_pred.max().item():.4f}")
             print(f"  Mean: {y_pred.mean().item():.4f}")
             print(f"  Std: {y_pred.std().item():.4f}")
-        #print(f"y_pred shape {y_pred.shape}")
-
-        # first few samples of y_pred
-        #print(f"y_pred: {y_pred[:5]}")
 
         # 2. Calculate loss
         loss = loss_fn(y_pred, y)
@@ -69,11 +65,9 @@ def train_step(model: torch.nn.Module,
             if batch % 10 == 0:  # Print LR less frequently to reduce output
                 print(f"Current LR: {optimizer.param_groups[0]['lr']:.6f}")
 
-
         batch_time_end = timer()
         total_time = batch_time_end - batch_time_start 
         print(f"Batch {batch}/{len(data_loader)}: Loss: {loss}, Accuracy: {train_acc/(batch+1):.2f}, time: {total_time:.3f} seconds")
-
     
     train_loss /= len(data_loader)
     train_acc /= len(data_loader)
@@ -91,8 +85,6 @@ def test_step(data_loader: torch.utils.data.DataLoader,
 
     with torch.inference_mode():
         for X, y in data_loader:
-            #X, y = X.to(device), y.to(device)
-
             X, y = X.to(device), y.to(device)
 
             # 1. Forward pass 
@@ -139,7 +131,7 @@ def eval_model(model: torch.nn.Module,
         # Scale loss and acc
         loss /= len(data_loader)
         acc /= len(data_loader)
-    return {"model_name": model.__class__.__name__, # only works when model was created with a class
+    return {"model_name": model.__class__.__name__,
             "model_loss": loss.item(),
             "model_acc": acc}
 
@@ -148,15 +140,8 @@ def make_predictions(model: torch.nn.Module, data: list, device: torch.device):
     model.eval()
     with torch.inference_mode(): 
         for sample in data:
-
             sample = torch.unsqueeze(sample, dim=0).to(device)
-
             pred_logit = model(sample)
-
-            # logit -> prediction probability
             pred_prob = torch.softmax(pred_logit.squeeze(), dim=0)
-
             pred_probs.append(pred_prob.cpu())
-
-    # stack pred probs list into a tensor
     return torch.stack(pred_probs)

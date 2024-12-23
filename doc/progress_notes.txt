@@ -87,13 +87,32 @@ Implemented Changes:
    - Raised gradient clipping threshold to 15
    - Extended training duration beyond 20 epochs
 
-Next Steps:
-1. Monitor effects of latest changes:
-   - Watch for reduction in training/validation accuracy gap
-   - Monitor gradient norm stability
-   - Track model output range
+[December 22, 2024] - Later Training Results and Code Reorganization:
+1. Updated Training Results with Standard ResNet-18:
+   - Switched to standard [2,2,2,2] ResNet-18 architecture (from [1,1,1,1])
+   - Observed severe overfitting:
+     - Training accuracy: 98.87%
+     - Validation accuracy: 16.47%
+     - Large gap (82%) indicates memorization without generalization
+   - Identified high gradient norms in later layers (layer4.0.conv2.weight: 4.4555)
 
-2. Consider further adjustments if needed:
-   - Progressive dropout rates in deeper layers
-   - Learning rate schedule modifications
-   - Additional regularization techniques
+2. Code Structure Reorganization:
+   - Refactored project structure for better organization:
+     - core/ : Core components (data loading, loss functions)
+     - engine/ : Training logic (trainer, training steps)
+     - models/ : Model architectures (ResNet, ConvNet)
+     - utils/ : Helper functions
+   - Added shell script (train.sh) for easier execution
+   - Centralized configuration in config.py
+
+Next Steps:
+1. Continue addressing overfitting:
+   - Implement stronger regularization techniques
+   - Increase weight decay to 5e-3
+   - Consider more aggressive data augmentation
+   - Monitor effects of progressive dropout rates
+
+2. Training Process Improvements:
+   - Add TensorBoard visualization for better monitoring
+   - Implement improved learning rate scheduling
+   - Consider batch size adjustments

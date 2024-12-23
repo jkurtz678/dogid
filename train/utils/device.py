@@ -1,7 +1,6 @@
 import torch
 import platform
 
-# tries to use mps gpu, otherwise defaults to 
 def get_device():
     os_name = platform.system()
     
