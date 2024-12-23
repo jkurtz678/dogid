@@ -1,17 +1,25 @@
 import torch
 from timeit import default_timer as timer
 
+from train.utils.logging.tensorboard import TensorboardLogger
+
 def train_step(model: torch.nn.Module,
                data_loader: torch.utils.data.DataLoader,
                loss_fn: torch.nn.Module,
                optimizer: torch.optim.Optimizer,
                accuracy_fn,
                device: torch.device,
-               warmup_scheduler=None):
+               warmup_scheduler=None,
+               logger=None,
+               epoch=None):
     train_loss, train_acc = 0,0
     model.to(device)
     
     for batch, (X, y) in enumerate(data_loader):
+        global_step = None
+        if logger is not None and epoch is not None:
+            global_step = epoch * len(data_loader) + batch
+
         batch_time_start = timer() 
         X, y = X.to(device), y.to(device)
 
@@ -37,6 +45,31 @@ def train_step(model: torch.nn.Module,
 
         # 4. Backpropagation
         loss.backward()
+
+        # batch level loss logging for tensorboard
+        if logger is not None and epoch is not None and global_step is not None:
+            logger.log_metrics(
+                metrics={
+                    "batch_loss": loss.item(),
+                    "batch_accuracy": train_acc/(batch+1)
+                },
+                step=global_step,
+                prefix="train/batch/"
+            )
+            
+            # Optionally log gradient norms at batch level too
+            if batch % 100 == 0:  # Keep the same frequency as your current gradient logging
+                total_norm = 0.0
+                for param in model.parameters():
+                    if param.grad is not None:
+                        param_norm = param.grad.data.norm(2)
+                        total_norm += param_norm.item() ** 2
+                total_norm = total_norm ** 0.5
+                logger.log_metrics(
+                    metrics={"gradient_norm": total_norm},
+                    step=global_step,
+                    prefix="train/batch/"
+                )
 
         if batch % 100 == 0:
             total_norm = 0.0

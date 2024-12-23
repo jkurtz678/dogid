@@ -30,12 +30,19 @@ def run():
         weight_decay=WEIGHT_DECAY,
         nesterov=True
     )
+
+    lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer,
+        T_max=EPOCHS,
+        eta_min=1e-6   # Minimum learning rate
+    )
     
     trainer = Trainer(
         model=model,
         loss_fn=loss_fn,
         optimizer=optimizer,
-        device=device
+        device=device,
+        lr_scheduler=lr_scheduler
     )
 
     if not MODEL_SAVE_PATH.exists():

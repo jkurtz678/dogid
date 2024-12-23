@@ -105,14 +105,28 @@ Implemented Changes:
    - Added shell script (train.sh) for easier execution
    - Centralized configuration in config.py
 
+[December 22, 2024] - Learning Rate Scheduling and Monitoring Improvements:
+1. Implemented Cosine Annealing Learning Rate Schedule:
+   - Added CosineAnnealingLR scheduler
+   - Initial LR: 0.008
+   - Minimum LR: 1e-6
+   - Total epochs: 50
+   - Latest results show training accuracy ~10.4% and validation accuracy ~8.2%
+
+2. Added TensorBoard Integration:
+   - Successfully logging training metrics (loss, accuracy)
+   - Added learning rate tracking
+   - Added weight and gradient histograms per layer
+
 Next Steps:
-1. Continue addressing overfitting:
-   - Implement stronger regularization techniques
-   - Increase weight decay to 5e-3
-   - Consider more aggressive data augmentation
-   - Monitor effects of progressive dropout rates
+1. Enhance TensorBoard Monitoring:
+   - Add batch-level loss logging for finer-grained analysis
+   - Track gradient norms per layer to identify potential vanishing/exploding gradients
+   - Add periodic image logging with model predictions
+   - Monitor learning rate changes over epochs
 
 2. Training Process Improvements:
-   - Add TensorBoard visualization for better monitoring
-   - Implement improved learning rate scheduling
-   - Consider batch size adjustments
+   - Experiment with different learning rate ranges in cosine annealing
+   - Consider adding learning rate warmup period
+   - Monitor effects of weight decay (currently 5e-3)
+   - Analyze layer-wise gradient patterns for optimization opportunities

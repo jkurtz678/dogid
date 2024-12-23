@@ -4,12 +4,13 @@ from .steps import train_step, test_step, eval_model
 from utils.logging.tensorboard import TensorboardLogger
 
 class Trainer:
-    def __init__(self, model, loss_fn, optimizer, device):
+    def __init__(self, model, loss_fn, optimizer, device, lr_scheduler):
         self.model = model
         self.loss_fn = loss_fn
         self.optimizer = optimizer
         self.device = device
         self.logger = TensorboardLogger()
+        self.lr_scheduler = lr_scheduler
 
     def train(self, train_loader, val_loader, epochs):
         self.model.train()
@@ -23,8 +24,12 @@ class Trainer:
                 loss_fn=self.loss_fn,
                 optimizer=self.optimizer,
                 accuracy_fn=self.accuracy_fn,
-                device=self.device
+                device=self.device,
+                logger=self.logger,
+                epoch=epoch
             )
+
+            self.lr_scheduler.step()
             
             # Log training metrics
             self.logger.log_metrics(
