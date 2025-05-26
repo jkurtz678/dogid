@@ -54,15 +54,23 @@ def load_dog_data():
     validation_size = int(VAL_SPLIT * len(train_dataset))
     test_size = len(train_dataset) - train_size - validation_size
 
+    # Load datasets with appropriate transforms
+    val_dataset = datasets.ImageFolder(root="images", transform=val_transform)
+    test_dataset = datasets.ImageFolder(root="images", transform=val_transform)
+    
     # Create splits
-    train_dataset, val_dataset, test_dataset = random_split(
+    train_dataset, _, _ = random_split(
         train_dataset, 
         [train_size, validation_size, test_size]
     )
-
-    # Override transforms for validation and test datasets
-    val_dataset.dataset.transform = val_transform
-    test_dataset.dataset.transform = val_transform
+    _, val_dataset, _ = random_split(
+        val_dataset, 
+        [train_size, validation_size, test_size]
+    )
+    _, _, test_dataset = random_split(
+        test_dataset, 
+        [train_size, validation_size, test_size]
+    )
 
     # Create dataloaders
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)

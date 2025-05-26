@@ -44,30 +44,6 @@ def train_step(model: torch.nn.Module,
         # 4. Backpropagation
         loss.backward()
 
-        # batch level loss logging for tensorboard
-        if logger is not None and epoch is not None and global_step is not None:
-            logger.log_metrics(
-                metrics={
-                    "batch_loss": loss.item(),
-                    "batch_accuracy": train_acc/(batch+1)
-                },
-                step=global_step,
-                prefix="train/batch/"
-            )
-            
-            # Optionally log gradient norms at batch level too
-            if batch % 100 == 0:  # Keep the same frequency as your current gradient logging
-                total_norm = 0.0
-                for param in model.parameters():
-                    if param.grad is not None:
-                        param_norm = param.grad.data.norm(2)
-                        total_norm += param_norm.item() ** 2
-                total_norm = total_norm ** 0.5
-                logger.log_metrics(
-                    metrics={"gradient_norm": total_norm},
-                    step=global_step,
-                    prefix="train/batch/"
-                )
 
         if batch % 100 == 0:
             total_norm = 0.0
@@ -89,6 +65,34 @@ def train_step(model: torch.nn.Module,
 
         # 6. Optimizer step
         optimizer.step()
+
+        # batch level loss logging for tensorboard
+        if logger is not None and epoch is not None and global_step is not None:
+            current_lr = optimizer.param_groups[0]['lr']
+            logger.log_metrics(
+                metrics={
+                    "batch_loss": loss.item(),
+                    "batch_accuracy": train_acc/(batch+1),
+                    "learning_rate": current_lr  # Add this line
+
+                },
+                step=global_step,
+                prefix="train/batch/"
+            )
+            
+            # Optionally log gradient norms at batch level too
+            if batch % 100 == 0:  # Keep the same frequency as your current gradient logging
+                total_norm = 0.0
+                for param in model.parameters():
+                    if param.grad is not None:
+                        param_norm = param.grad.data.norm(2)
+                        total_norm += param_norm.item() ** 2
+                total_norm = total_norm ** 0.5
+                logger.log_metrics(
+                    metrics={"gradient_norm": total_norm},
+                    step=global_step,
+                    prefix="train/batch/"
+                )
 
         # 7. Step warmup scheduler if it exists and we're in warmup phase
         if warmup_scheduler is not None:
