@@ -130,7 +130,7 @@ def create_resnet18(num_classes=120, pretrained=True):
     
     if pretrained:
         # Load pretrained ResNet18 and modify final layer
-        model = models.resnet18(pretrained=True)
+        model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
         
         # Replace final classifier with custom one for 120 classes
         model.fc = nn.Sequential(
