@@ -31,10 +31,25 @@ def run():
         nesterov=True
     )
 
-    lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+    # Warmup scheduler for first 5 epochs, then cosine annealing
+    warmup_epochs = 5
+    warmup_scheduler = torch.optim.lr_scheduler.LinearLR(
         optimizer,
-        T_max=EPOCHS,
-        eta_min=1e-6   # Minimum learning rate
+        start_factor=0.1,  # Start at 10% of learning rate
+        end_factor=1.0,    # Ramp up to full learning rate
+        total_iters=warmup_epochs
+    )
+    
+    cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer,
+        T_max=EPOCHS - warmup_epochs,
+        eta_min=1e-6
+    )
+    
+    lr_scheduler = torch.optim.lr_scheduler.SequentialLR(
+        optimizer,
+        schedulers=[warmup_scheduler, cosine_scheduler],
+        milestones=[warmup_epochs]
     )
     
     trainer = Trainer(

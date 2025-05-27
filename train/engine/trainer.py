@@ -17,7 +17,7 @@ class Trainer:
         for epoch in range(epochs):
             print(f"Epoch: {epoch+1}")
             
-            # Training phase
+            # Training phase with mixed precision
             train_loss, train_acc = train_step(
                 model=self.model,
                 data_loader=train_loader,
@@ -26,7 +26,8 @@ class Trainer:
                 accuracy_fn=self.accuracy_fn,
                 device=self.device,
                 logger=self.logger,
-                epoch=epoch
+                epoch=epoch,
+                use_amp=True  # Enable mixed precision
             )
 
             self.lr_scheduler.step()

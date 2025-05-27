@@ -125,14 +125,34 @@ class ResNet(nn.Module):
         
         return x
 
-def create_resnet18(num_classes=120):
-    model = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
+def create_resnet18(num_classes=120, pretrained=True):
+    import torchvision.models as models
     
-    # Initialize the Linear layer
-    nn.init.normal_(model.classifier[3].weight, std=0.001)  # First Linear layer
-    nn.init.constant_(model.classifier[3].bias, 0)
-    
-    return model
+    if pretrained:
+        # Load pretrained ResNet18 and modify final layer
+        model = models.resnet18(pretrained=True)
+        
+        # Replace final classifier with custom one for 120 classes
+        model.fc = nn.Sequential(
+            nn.BatchNorm1d(512),
+            nn.Dropout(0.5),
+            nn.Linear(512, num_classes)
+        )
+        
+        # Initialize the new linear layer
+        nn.init.normal_(model.fc[2].weight, std=0.001)
+        nn.init.constant_(model.fc[2].bias, 0)
+        
+        return model
+    else:
+        # Use custom ResNet implementation
+        model = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
+        
+        # Initialize the Linear layer
+        nn.init.normal_(model.classifier[3].weight, std=0.001)
+        nn.init.constant_(model.classifier[3].bias, 0)
+        
+        return model
 
 def create_resnet34(num_classes=120):
     """Creates a ResNet-34 model"""

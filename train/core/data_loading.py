@@ -28,7 +28,8 @@ def load_dog_data():
 
     # Validation/Test transform without augmentation
     val_transform = transforms.Compose([
-        transforms.Resize((CROP_SIZE, CROP_SIZE)),
+        transforms.Resize(256),  # Resize to slightly larger than crop size
+        transforms.CenterCrop(CROP_SIZE),  # Center crop for consistency
         transforms.ToTensor(),
         transforms.Normalize(mean=data_set_means, 
                            std=data_set_stds)

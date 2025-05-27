@@ -1,5 +1,6 @@
 import torch
 from timeit import default_timer as timer
+from torch.cuda.amp import autocast, GradScaler
 
 def train_step(model: torch.nn.Module,
                data_loader: torch.utils.data.DataLoader,
@@ -9,9 +10,13 @@ def train_step(model: torch.nn.Module,
                device: torch.device,
                warmup_scheduler=None,
                logger=None,
-               epoch=None):
+               epoch=None,
+               use_amp=True):
     train_loss, train_acc = 0,0
     model.to(device)
+    
+    # Initialize GradScaler for mixed precision if using AMP
+    scaler = GradScaler() if use_amp and device.type == 'cuda' else None
     
     for batch, (X, y) in enumerate(data_loader):
         global_step = None
@@ -21,8 +26,12 @@ def train_step(model: torch.nn.Module,
         batch_time_start = timer() 
         X, y = X.to(device), y.to(device)
 
-        # 1. forward pass
-        y_pred = model(X)
+        # 1. forward pass with mixed precision
+        if use_amp and device.type == 'cuda':
+            with autocast():
+                y_pred = model(X)
+        else:
+            y_pred = model(X)
 
         if batch == 0:  # First batch of each epoch
             print(f"Model output stats:")
@@ -33,7 +42,11 @@ def train_step(model: torch.nn.Module,
             print(f"  Std: {y_pred.std().item():.4f}")
 
         # 2. Calculate loss
-        loss = loss_fn(y_pred, y)
+        if use_amp and device.type == 'cuda':
+            with autocast():
+                loss = loss_fn(y_pred, y)
+        else:
+            loss = loss_fn(y_pred, y)
         train_loss += loss
         train_acc += accuracy_fn(y_true=y,
                                  y_pred=y_pred.argmax(dim=1)) # Go from logits -> pred labels
@@ -41,8 +54,11 @@ def train_step(model: torch.nn.Module,
         # 3. Backward pass
         optimizer.zero_grad()
 
-        # 4. Backpropagation
-        loss.backward()
+        # 4. Backpropagation with mixed precision
+        if scaler is not None:
+            scaler.scale(loss).backward()
+        else:
+            loss.backward()
 
 
         if batch % 100 == 0:
@@ -60,11 +76,16 @@ def train_step(model: torch.nn.Module,
                 if param.grad is not None:
                     print(f"{name}: {param.grad.norm().item():.4f}")
 
-        # 5. Gradient clipping
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=15.0)
-
-        # 6. Optimizer step
-        optimizer.step()
+        # 5. Gradient clipping and optimizer step
+        if scaler is not None:
+            # Unscale gradients before clipping
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=15.0)
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=15.0)
+            optimizer.step()
 
         # batch level loss logging for tensorboard
         if logger is not None and epoch is not None and global_step is not None:
