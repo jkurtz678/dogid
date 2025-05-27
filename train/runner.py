@@ -20,7 +20,7 @@ def initialize_weights(m):
 def run():
     device = get_device()
     model = create_resnet18(num_classes=NUM_CLASSES)
-    model.apply(initialize_weights)
+    # Don't apply initialize_weights - it overwrites pretrained weights!
     
     loss_fn = LabelSmoothingLoss(classes=NUM_CLASSES, smoothing=LABEL_SMOOTHING)
     optimizer = torch.optim.SGD(
