@@ -3,8 +3,9 @@ from torch.utils.data import random_split, DataLoader
 from config import *  # Using absolute import path
 
 def load_dog_data():
-    data_set_means = [0.4762, 0.4519, 0.3910]
-    data_set_stds = [0.2580, 0.2524, 0.2570]
+    # Use ImageNet normalization for pretrained models
+    data_set_means = [0.485, 0.456, 0.406]
+    data_set_stds = [0.229, 0.224, 0.225]
 
     # Training transform with augmentation
     train_transform = transforms.Compose([
