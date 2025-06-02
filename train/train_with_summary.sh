@@ -17,7 +17,7 @@ echo "Training output will be saved to: $LOG_FILE"
 echo ""
 
 # Run the training script, capturing output
-python runner.py 2>&1 | tee "$LOG_FILE"
+python3 runner.py 2>&1 | tee "$LOG_FILE"
 
 # Check if training completed successfully
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
@@ -28,7 +28,7 @@ if [ ${PIPESTATUS[0]} -eq 0 ]; then
     echo ""
     
     # Generate performance summary
-    python utils/training_summary.py "$LOG_FILE"
+    python3 utils/training_summary.py "$LOG_FILE"
     
     echo ""
     echo "=============================================="
