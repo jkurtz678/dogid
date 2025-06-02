@@ -3,7 +3,7 @@ from pathlib import Path
 # Model Configuration
 NUM_CLASSES = 120
 BATCH_SIZE = 32
-EPOCHS = 50
+EPOCHS = 15  # Quick validation run
 
 # Optimization
 LEARNING_RATE = 0.001
