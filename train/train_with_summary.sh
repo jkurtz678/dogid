@@ -21,11 +21,9 @@ if [ -d "venv" ]; then
     source venv/bin/activate
 fi
 
-# Run the training script, capturing output with progress indicator
+# Run the training script, capturing output with clean progress indicator
 python3 runner.py 2>&1 | tee "$LOG_FILE" | while IFS= read -r line; do
-    echo "$line"
-    
-    # Extract and display progress
+    # Only show clean progress indicators, not raw output
     if [[ "$line" =~ Epoch:\ ([0-9]+) ]]; then
         current_epoch="${BASH_REMATCH[1]}"
         echo "🔄 Progress: Epoch $current_epoch/15 ($(( current_epoch * 100 / 15 ))%)"
@@ -34,6 +32,9 @@ python3 runner.py 2>&1 | tee "$LOG_FILE" | while IFS= read -r line; do
         val_acc="${BASH_REMATCH[2]}"
         echo "📊 Latest: Train ${train_acc}% | Val ${val_acc}%"
         echo "----------------------------------------"
+    elif [[ "$line" =~ (ERROR|CUDA|Error|Failed) ]]; then
+        # Show important error messages
+        echo "⚠️  $line"
     fi
 done
 
