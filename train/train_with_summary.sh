@@ -21,8 +21,21 @@ if [ -d "venv" ]; then
     source venv/bin/activate
 fi
 
-# Run the training script, capturing output
-python3 runner.py 2>&1 | tee "$LOG_FILE"
+# Run the training script, capturing output with progress indicator
+python3 runner.py 2>&1 | tee "$LOG_FILE" | while IFS= read -r line; do
+    echo "$line"
+    
+    # Extract and display progress
+    if [[ "$line" =~ Epoch:\ ([0-9]+) ]]; then
+        current_epoch="${BASH_REMATCH[1]}"
+        echo "🔄 Progress: Epoch $current_epoch/50 ($(( current_epoch * 100 / 50 ))%)"
+    elif [[ "$line" =~ Train\ loss:.*Train\ acc:\ ([0-9.]+).*Val\ acc:\ ([0-9.]+) ]]; then
+        train_acc="${BASH_REMATCH[1]}"
+        val_acc="${BASH_REMATCH[2]}"
+        echo "📊 Latest: Train ${train_acc}% | Val ${val_acc}%"
+        echo "----------------------------------------"
+    fi
+done
 
 # Check if training completed successfully
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
