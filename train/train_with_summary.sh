@@ -16,6 +16,11 @@ LOG_FILE="training_logs/training_${TIMESTAMP}.log"
 echo "Training output will be saved to: $LOG_FILE"
 echo ""
 
+# Activate virtual environment if it exists
+if [ -d "venv" ]; then
+    source venv/bin/activate
+fi
+
 # Run the training script, capturing output
 python3 runner.py 2>&1 | tee "$LOG_FILE"
 
