@@ -8,3 +8,4 @@ saved_models
 server/server
 ui/node_modules
 ui/dist
+.claude
