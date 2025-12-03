@@ -107,7 +107,8 @@ class Trainer:
         torch.save(self.model.state_dict(), path)
 
     def load_model(self, path: Path):
-        self.model.load_state_dict(torch.load(path))
+        self.model.load_state_dict(torch.load(path, map_location=self.device))
+        self.model.to(self.device)
 
     @staticmethod
     def accuracy_fn(y_true, y_pred):
